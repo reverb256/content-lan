@@ -941,7 +941,7 @@ function probeDur(url){
 }
 
 /* ── Approval (content.lan review gate) ── */
-const APPROVAL_API='http://content.lan:8791/';
+const APPROVAL_API='/approve/';
 let approvalQueue=[];
 async function approvalAction(asset, action, btn){
   if(btn){btn.disabled=true;const orig=btn.textContent;btn.textContent=action==='approve'?'✓ Approving…':'✕ Rejecting…';}
