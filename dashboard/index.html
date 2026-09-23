@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Dashboard</title>
+<style>
+:root { --bg:#0d1117; --fg:#c9d1d9; --accent:#58a6ff; --green:#3fb950; --red:#f85149; --yellow:#d29922; --card:#161b22; --border:#30363d; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:14px; }
+.header { background:var(--card); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+.header h1 { margin:0; font-size:18px; color:var(--fg); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr)); gap:16px; padding:24px; max-width:1400px; margin:0 auto; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:20px; }
+.card h2 { margin:0 0 12px 0; font-size:14px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); }
+.metric { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
+.metric:last-child { border-bottom:none; }
+.metric-label { color:var(--fg); opacity:0.7; }
+.metric-value { font-weight:600; }
+.status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.status-dot.green { background:var(--green); }
+.status-dot.red { background:var(--red); }
+.status-dot.yellow { background:var(--yellow); }
+.big-number { font-size:32px; font-weight:700; color:var(--green); }
+.btn { background:var(--accent); color:var(--bg); border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; text-decoration:none; display:inline-block; }
+.btn:hover { opacity:0.9; }
+.btn.danger { background:var(--red); color:#fff; }
+.btn.warning { background:var(--yellow); color:var(--bg); }
+</style>
+</head>
+<body>
+<div class="header">
+<h1>⚡ Team Dashboard</h1>
+<span id="ts"></span>
+</div>
+<div class="grid">
+
+<div class="card">
+<h2>💰 Trader Wallet</h2>
+<div class="metric"><span class="metric-label">Status</span><span class="metric-value"><span class="status-dot yellow"></span>Awaiting Funding</span></div>
+<div class="metric"><span class="metric-label">Capital Deployed</span><span class="metric-value">$0.00 USDC</span></div>
+<div class="metric"><span class="metric-label">Wallet</span><span class="metric-value">Not configured</span></div>
+<div class="metric"><span class="metric-label">Strategy</span><span class="metric-value">DCA on SOL/USDC</span></div>
+<div class="metric"><span class="metric-label">Positions</span><span class="metric-value">0 open</span></div>
+<div class="metric"><span class="metric-label">Guardrails</span><span class="metric-value">5% / -15% / -10%</span></div>
+</div>
+
+<div class="card">
+<h2>⛏️ Mining — Forge</h2>
+<div class="metric"><span class="metric-label">Status</span><span class="metric-value"><span class="status-dot green"></span>Active</span></div>
+<div class="metric"><span class="metric-label">GPUs</span><span class="metric-value">2× RTX 4060 8GB</span></div>
+<div class="metric"><span class="metric-label">GPU 0</span><span class="metric-value">64°C / 100% util</span></div>
+<div class="metric"><span class="metric-label">Revenue Source</span><span class="metric-value">peakminer</span></div>
+</div>
+
+<div class="card">
+<h2>🤖 Docker Fleet — Nexus</h2>
+<div class="metric"><span class="metric-label">hermes-trader</span><span class="metric-value"><span class="status-dot green"></span>:8642</span></div>
+<div class="metric"><span class="metric-label">hermes-content</span><span class="metric-value"><span class="status-dot green"></span>:8643</span></div>
+<div class="metric"><span class="metric-label">hermes-publisher</span><span class="metric-value"><span class="status-dot green"></span>:8644</span></div>
+<div class="metric"><span class="metric-label">hermes-monitoring</span><span class="metric-value"><span class="status-dot green"></span>:8645</span></div>
+<div class="metric"><span class="metric-label">hermes-site-agency</span><span class="metric-value"><span class="status-dot green"></span>:8646</span></div>
+<div class="metric"><span class="metric-label">Total</span><span class="metric-value">5 running</span></div>
+</div>
+
+<div class="card">
+<h2>📊 System Health</h2>
+<div class="metric"><span class="metric-label">Nous Quota</span><span class="metric-value">50 RPM / 100K TPM</span></div>
+<div class="metric"><span class="metric-label">Proxy</span><span class="metric-value"><span class="status-dot green"></span>:8899 live</span></div>
+<div class="metric"><span class="metric-label">Cluster</span><span class="metric-value"><span class="status-dot red"></span>DOWN (migration)</span></div>
+<div class="metric"><span class="metric-label">content.lan</span><span class="metric-value"><span class="status-dot green"></span>live</span></div>
+<div class="metric"><span class="metric-label">Mosaic</span><span class="metric-value"><span class="status-dot green"></span>nexus:8081</span></div>
+<div class="metric"><span class="metric-label">Audio Drama</span><span class="metric-value"><span class="status-dot yellow"></span>story written, TTS pending</span></div>
+</div>
+
+</div>
+<script>
+document.getElementById('ts').textContent = 'Updated: ' + new Date().toLocaleString();
+</script>
+</body>
+</html>

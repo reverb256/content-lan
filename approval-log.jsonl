@@ -1,0 +1,6 @@
+{"ts": 1788324476.7432163, "iso": "2026-09-01T23:47:56-0500", "action": "approve", "asset": "test.mp4", "detail": "no_sidecar"}
+{"ts": 1788373912.0472171, "iso": "2026-09-02T13:31:52-0500", "action": "approve", "asset": "videos/__nonexistent__.mp4", "detail": "no_sidecar"}
+{"ts": 1788373983.7782779, "iso": "2026-09-02T13:33:03-0500", "action": "approve", "asset": "videos/applied-psychology-ai-visuals-only.mp4", "detail": "sidecar_ok"}
+{"ts": 1788458491.8201008, "iso": "2026-09-03T13:01:31-0500", "action": "approve", "asset": "audio-dramas/the-cartographers-paradox-v3b.mp3", "detail": "sidecar_ok"}
+{"ts": 1788594300.7725787, "iso": "2026-09-05T02:45:00-0500", "action": "approve", "asset": "videos/applied-psychology-ai-was-wrong.mp4", "detail": "sidecar_ok"}
+{"ts": 1788594300.7736177, "iso": "2026-09-05T02:45:00-0500", "action": "approve", "asset": "videos/applied-psychology-ai-was-wrong.mp4", "detail": "kanban unblock failed: [Errno 2] No such file or directory: 'hermes'"}

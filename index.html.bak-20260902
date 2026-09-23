@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>content.lan — Media Library</title>
+<meta name="color-scheme" content="dark">
+<meta name="description" content="A curated media library — audio dramas, music, video, and images served on the local network.">
+<style>
+:root {
+  --bg:           #08080c;
+  --bg-elev:      #0e0e14;
+  --bg-card:      #13131b;
+  --bg-card-hv:   #1a1a25;
+  --bg-glass:     rgba(14,14,20,.72);
+  --accent:       #e5c66d;
+  --accent-hv:    #f0d485;
+  --accent-glow:  rgba(229,198,109,.16);
+  --accent-line:  rgba(229,198,109,.35);
+  --fg:           #ededf2;
+  --fg-sec:       #9a9aaa;
+  --fg-ter:       #62627a;
+  --border:       #1c1c28;
+  --border-hv:    #2a2a3c;
+  --radius-s:     6px;
+  --radius:       10px;
+  --radius-l:     14px;
+  --radius-xl:    20px;
+  --shadow:       0 4px 24px rgba(0,0,0,.35);
+  --shadow-hv:    0 12px 48px rgba(0,0,0,.55);
+  --transition:   .3s cubic-bezier(.4,0,.2,1);
+  --font:         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--fg);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%, rgba(229,198,109,.06) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border-hv);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--fg-ter)}
+
+/* ── Top Nav ── */
+.topnav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  gap:1.25rem;
+  padding:.85rem 1.5rem;
+  background:var(--bg-glass);
+  backdrop-filter:blur(18px) saturate(1.4);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  font-size:1.15rem;
+  font-weight:600;
+  letter-spacing:-.02em;
+  color:var(--fg);
+  text-decoration:none;
+  flex-shrink:0;
+}
+.nav-brand .brand-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 12px var(--accent-glow);
+}
+.nav-search{
+  position:relative;
+  flex:1;
+  max-width:420px;
+}
+.nav-search input{
+  width:100%;
+  padding:.55rem 1rem .55rem 2.2rem;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--fg);
+  font-size:.88rem;
+  outline:none;
+  transition:var(--transition);
+}
+.nav-search input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow);
+}
+.nav-search::before{
+  content:"🔍";
+  position:absolute;
+  left:.75rem;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:.8rem;
+  opacity:.45;
+  pointer-events:none;
+}
+.nav-filters{
+  display:flex;
+  gap:.4rem;
+  flex-wrap:wrap;
+}
+.filter-pill{
+  padding:.4rem .95rem;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--fg-sec);
+  cursor:pointer;
+  font-size:.82rem;
+  font-weight:500;
+  transition:var(--transition);
+  white-space:nowrap;
+}
+.filter-pill:hover{
+  color:var(--fg);
+  border-color:var(--border-hv);
+  background:var(--bg-card);
+}
+.filter-pill.active{
+  background:var(--accent);
+  color:#0e0e14;
+  border-color:var(--accent);
+  font-weight:600;
+}
+
+/* ── Hero ── */
+.hero{
+  position:relative;
+  margin:1.5rem;
+  border-radius:var(--radius-xl);
+  overflow:hidden;
+  min-height:380px;
+  display:flex;
+  align-items:flex-end;
+  border:1px solid var(--border);
+  transition:var(--transition);
+}
+.hero:hover{
+  border-color:var(--border-hv);
+  box-shadow:var(--shadow-hv);
+}
+.hero-bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  filter:blur(40px) saturate(1.3) brightness(.35);
+  transform:scale(1.15);
+  opacity:.6;
+  transition:opacity .5s;
+}
+.hero-gradient{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, transparent 0%, rgba(8,8,12,.6) 50%, var(--bg) 100%),
+             linear-gradient(90deg, rgba(8,8,12,.85) 0%, transparent 60%);
+}
+.hero-inner{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:200px 1fr;
+  gap:2rem;
+  padding:2.5rem;
+  width:100%;
+}
+@media(max-width:768px){
+  .hero{margin:1rem;min-height:auto}
+  .hero-inner{grid-template-columns:1fr;text-align:center;padding:1.75rem;gap:1.25rem}
+}
+.hero-cover{
+  width:100%;
+  aspect-ratio:1;
+  border-radius:var(--radius-l);
+  background:var(--bg-card);
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  position:relative;
+}
+.hero-cover img{
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity .5s;
+}
+.hero-cover img.loaded{opacity:1}
+.hero-cover .cover-ph{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:3.5rem;opacity:.18;
+}
+.hero-meta{display:flex;flex-direction:column;gap:.85rem}
+.hero-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  align-self:flex-start;
+  background:var(--accent);
+  color:#0e0e14;
+  font-size:.68rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  padding:.3rem .75rem;
+  border-radius:var(--radius-s);
+}
+@media(max-width:768px){.hero-badge{align-self:center}}
+.hero-badge .badge-dot{
+  width:6px;height:6px;border-radius:50%;background:#0e0e14;opacity:.5;
+}
+.hero-title{
+  font-size:clamp(1.6rem,4.5vw,2.6rem);
+  font-weight:200;
+  letter-spacing:-.025em;
+  line-height:1.15;
+  background:linear-gradient(135deg,var(--fg) 0%,var(--accent) 120%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-desc{
+  color:var(--fg-sec);
+  font-size:.98rem;
+  line-height:1.65;
+  max-width:560px;
+}
+@media(max-width:768px){.hero-desc{margin:0 auto}}
+.hero-stats{
+  display:flex;
+  gap:1.25rem;
+  flex-wrap:wrap;
+}
+@media(max-width:768px){.hero-stats{justify-content:center}}
+.hero-stat{
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  font-size:.82rem;
+  color:var(--fg-sec);
+}
+.hero-stat .stat-icon{opacity:.5;font-size:.75rem}
+.hero-actions{
+  display:flex;
+  gap:.75rem;
+  flex-wrap:wrap;
+}
+@media(max-width:768px){.hero-actions{justify-content:center}}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.65rem 1.4rem;
+  border-radius:999px;
+  font-size:.88rem;
+  font-weight:600;
+  cursor:pointer;
+  border:none;
+  transition:var(--transition);
+  text-decoration:none;
+}
+.btn-primary{
+  background:var(--accent);
+  color:#0e0e14;
+}
+.btn-primary:hover{
+  background:var(--accent-hv);
+  transform:translateY(-1px);
+  box-shadow:0 6px 24px var(--accent-glow);
+}
+.btn-ghost{
+  background:var(--bg-card);
+  color:var(--fg);
+  border:1px solid var(--border);
+}
+.btn-ghost:hover{
+  border-color:var(--border-hv);
+  background:var(--bg-card-hv);
+}
+
+/* ── Coming Soon Hero ── */
+.hero-coming{
+  text-align:center;
+  padding:3rem 2rem;
+  width:100%;
+}
+.hero-coming .coming-icon{
+  font-size:3.5rem;
+  margin-bottom:1rem;
+  opacity:.25;
+}
+.hero-coming h2{
+  font-size:clamp(1.4rem,3.5vw,2rem);
+  font-weight:200;
+  letter-spacing:-.02em;
+  margin-bottom:.5rem;
+}
+.hero-coming p{
+  color:var(--fg-ter);
+  font-size:.95rem;
+  max-width:400px;
+  margin:0 auto;
+}
+
+/* ── Sections ── */
+.sections{position:relative;z-index:1}
+.section{
+  padding:2.5rem 1.5rem;
+  display:none;
+}
+.section.active{display:block}
+@media(max-width:600px){.section{padding:2rem 1rem}}
+.section-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:1.25rem;
+  flex-wrap:wrap;
+  gap:.5rem;
+}
+.section-title{
+  font-size:1.25rem;
+  font-weight:300;
+  letter-spacing:-.01em;
+  color:var(--fg);
+}
+.section-count{
+  color:var(--fg-ter);
+  font-size:.85rem;
+  font-weight:400;
+  margin-left:.5rem;
+}
+
+/* ── Grid ── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:1.25rem;
+}
+@media(max-width:600px){.grid{grid-template-columns:1fr;gap:1rem}}
+
+/* ── Card ── */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-l);
+  overflow:hidden;
+  transition:var(--transition);
+  box-shadow:var(--shadow);
+  opacity:0;
+  transform:translateY(18px);
+  display:flex;
+  flex-direction:column;
+}
+.card.in{opacity:1;transform:translateY(0)}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:var(--border-hv);
+  box-shadow:var(--shadow-hv);
+}
+.card-media{
+  position:relative;
+  width:100%;
+  aspect-ratio:1;
+  background:linear-gradient(135deg,#16161e 0%,#0d0d12 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.card-media img{
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity .45s;
+}
+.card-media img.loaded{opacity:1}
+.card-media .media-icon{
+  position:absolute;
+  font-size:3rem;
+  opacity:.2;
+  z-index:1;
+}
+.card:hover .media-icon{opacity:.3}
+.card-play{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.35);
+  opacity:0;
+  transition:opacity .25s;
+  z-index:2;
+  cursor:pointer;
+  border:none;
+}
+.card:hover .card-play{opacity:1}
+.card-play .play-circle{
+  width:52px;height:52px;
+  border-radius:50%;
+  background:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.3rem;
+  color:#0e0e14;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  transition:transform .2s;
+}
+.card-play:hover .play-circle{transform:scale(1.08)}
+
+/* Card players */
+.card-media audio,
+.card-media video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.card-media video{background:#000}
+
+.card-body{
+  padding:1rem 1.15rem 1.25rem;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:.45rem;
+}
+.card-title{
+  font-size:.98rem;
+  font-weight:600;
+  color:var(--fg);
+  line-height:1.3;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.card-desc{
+  font-size:.82rem;
+  color:var(--fg-sec);
+  line-height:1.5;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.card-chips{
+  display:flex;
+  gap:.4rem;
+  flex-wrap:wrap;
+  margin-top:auto;
+  padding-top:.5rem;
+}
+.chip{
+  font-size:.68rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  padding:.2rem .55rem;
+  border-radius:4px;
+  background:var(--bg-elev);
+  color:var(--fg-ter);
+  border:1px solid var(--border);
+  white-space:nowrap;
+}
+.chip-accent{
+  color:var(--accent);
+  border-color:var(--accent-line);
+  background:rgba(229,198,109,.06);
+}
+
+/* Drama card variant */
+.card-drama .card-media{aspect-ratio:16/9}
+.card-drama .card-title{font-size:1.05rem}
+
+/* ── Empty State ── */
+.empty{
+  text-align:center;
+  padding:4rem 2rem;
+  color:var(--fg-ter);
+  grid-column:1/-1;
+}
+.empty-icon{font-size:4rem;margin-bottom:1rem;opacity:.18}
+.empty p{font-size:1rem;font-weight:300}
+.empty-sub{font-size:.82rem;margin-top:.25rem;opacity:.6}
+
+/* ── Footer ── */
+footer{
+  text-align:center;
+  padding:2rem 1.5rem;
+  color:var(--fg-ter);
+  font-size:.8rem;
+  font-weight:300;
+  border-top:1px solid var(--border);
+  margin-top:1rem;
+}
+
+/* ── Lightbox ── */
+.lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:rgba(0,0,0,.92);
+  align-items:center;
+  justify-content:center;
+  padding:2rem;
+}
+.lightbox.open{display:flex}
+.lightbox img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  border-radius:var(--radius);
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.lightbox-close{
+  position:absolute;
+  top:1.25rem;right:1.5rem;
+  background:none;border:none;color:var(--fg-sec);
+  font-size:1.8rem;cursor:pointer;
+  transition:color .2s;
+  line-height:1;
+}
+.lightbox-close:hover{color:var(--fg)}
+
+/* ── Now Playing Bar ── */
+.now-playing{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  z-index:150;
+  background:var(--bg-glass);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-top:1px solid var(--border);
+  padding:.65rem 1.5rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  transform:translateY(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.now-playing.open{transform:translateY(0)}
+.now-playing .np-info{
+  flex:1;
+  min-width:0;
+}
+.now-playing .np-title{
+  font-size:.85rem;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.now-playing .np-meta{
+  font-size:.72rem;
+  color:var(--fg-ter);
+}
+.now-playing audio{
+  flex:2;
+  max-width:500px;
+  height:36px;
+}
+.now-playing .np-close{
+  background:none;border:none;color:var(--fg-ter);
+  font-size:1.2rem;cursor:pointer;
+  padding:.25rem;
+}
+.now-playing .np-close:hover{color:var(--fg)}
+
+/* ── Audio element styling ── */
+audio::-webkit-media-controls-panel{background:transparent}
+audio::-webkit-media-controls-enclosure{border-radius:0 0 var(--radius-l) var(--radius-l)}
+video::-webkit-media-controls-panel{background:transparent}
+
+/* ── Skeleton loading ── */
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+.skeleton{
+  background:linear-gradient(90deg,var(--bg-card) 25%,var(--bg-card-hv) 50%,var(--bg-card) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s infinite;
+  border-radius:var(--radius);
+}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .topnav{flex-wrap:wrap;gap:.75rem;padding:.75rem 1rem}
+  .nav-search{order:3;max-width:none;width:100%}
+  .nav-filters{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:.25rem}
+  .hero{margin:1rem}
+  .section{padding:1.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="topnav">
+  <a class="nav-brand" href="#">
+    <span class="brand-dot"></span>
+    content.lan
+  </a>
+  <div class="nav-search">
+    <input type="search" id="search" placeholder="Search titles, descriptions, cast…" autocomplete="off">
+  </div>
+  <div class="nav-filters" id="filterPills">
+    <button class="filter-pill active" data-filter="all">All</button>
+    <button class="filter-pill" data-filter="audio-drama">Audio Dramas</button>
+    <button class="filter-pill" data-filter="audio">Audio</button>
+    <button class="filter-pill" data-filter="video">Video</button>
+    <button class="filter-pill" data-filter="images">Images</button>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="sections">
+
+  <!-- Hero / Spotlight -->
+  <section class="section active" id="sec-hero">
+    <div class="hero" id="hero"></div>
+  </section>
+
+  <!-- Audio Dramas -->
+  <section class="section" id="sec-drama">
+    <div class="section-head">
+      <h2 class="section-title">Audio Dramas<span class="section-count" id="cnt-drama"></span></h2>
+    </div>
+    <div class="grid" id="g-drama"></div>
+  </section>
+
+  <!-- All Media -->
+  <section class="section" id="sec-all">
+    <div class="section-head">
+      <h2 class="section-title">All Media<span class="section-count" id="cnt-all"></span></h2>
+    </div>
+    <div class="grid" id="g-all"></div>
+  </section>
+
+  <!-- Audio -->
+  <section class="section" id="sec-audio">
+    <div class="section-head">
+      <h2 class="section-title">Audio<span class="section-count" id="cnt-audio"></span></h2>
+    </div>
+    <div class="grid" id="g-audio"></div>
+  </section>
+
+  <!-- Video -->
+  <section class="section" id="sec-video">
+    <div class="section-head">
+      <h2 class="section-title">Video<span class="section-count" id="cnt-video"></span></h2>
+    </div>
+    <div class="grid" id="g-video"></div>
+  </section>
+
+  <!-- Images -->
+  <section class="section" id="sec-images">
+    <div class="section-head">
+      <h2 class="section-title">Images<span class="section-count" id="cnt-images"></span></h2>
+    </div>
+    <div class="grid" id="g-images"></div>
+  </section>
+
+</main>
+
+<footer>Served locally on the network · content.lan</footer>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose" aria-label="Close">✕</button>
+  <img id="lbImg" src="" alt="Full size">
+</div>
+
+<!-- Now Playing Bar -->
+<div class="now-playing" id="nowPlaying">
+  <div class="np-info">
+    <div class="np-title" id="npTitle">—</div>
+    <div class="np-meta" id="npMeta"></div>
+  </div>
+  <audio id="npAudio" controls></audio>
+  <button class="np-close" id="npClose" aria-label="Close player">✕</button>
+</div>
+
+<script>
+(()=>{
+'use strict';
+
+/* ── Config ── */
+const EXT={audio:['mp3','wav','ogg','flac','m4a','aac','wma'],video:['mp4','webm','mkv','mov','avi','m4v'],images:['jpg','jpeg','png','gif','webp','svg','bmp']};
+const ICON={audio:'🎵',video:'🎬',images:'🖼️','audio-drama':'🎙️'};
+const DRAMADIR='audio-dramas';
+
+/* ── Helpers ── */
+const cat=f=>{const e=f.split('.').pop().toLowerCase();for(const[k,v]of Object.entries(EXT))if(v.includes(e))return k;return null};
+const deriveTitle=f=>f.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim();
+const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML};
+
+function fmtSize(b){
+  if(!b||isNaN(b))return'—';
+  if(b<1024)return b+' B';
+  if(b<1048576)return(b/1024).toFixed(1)+' KB';
+  if(b<1073741824)return(b/1048576).toFixed(1)+' MB';
+  return(b/1073741824).toFixed(2)+' GB';
+}
+function fmtDur(s){
+  if(!s||isNaN(s)||!isFinite(s))return null;
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);
+  return h>0?h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'):m+':'+String(sec).padStart(2,'0');
+}
+function fmtDate(t){
+  if(!t)return'—';
+  const d=new Date(t);
+  if(isNaN(d))return'—';
+  const now=Date.now(),diff=now-t;
+  if(diff<60000)return'just now';
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';
+  if(diff<604800000)return Math.floor(diff/86400000)+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function parseDurStr(s){
+  if(!s)return null;
+  if(typeof s==='number')return s;
+  const m=s.match(/^(?:(\d+):)?(\d+):(\d+)$/);
+  if(m)return(+m[1]||0)*3600 + +m[2]*60 + +m[3];
+  const n=parseFloat(s);
+  return isNaN(n)?null:n;
+}
+
+/* ── Parse nginx autoindex ── */
+function parseListing(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  const pre=doc.querySelector('pre');
+  if(!pre)return[];
+  const results=[];
+  const re=/^<a href="([^"]+)">([^<]*)<\/a>\s*(.*)$/;
+  for(const line of pre.textContent.split('\n')){
+    const m=line.match(re);
+    if(!m)continue;
+    const href=m[1],name=m[2];
+    if(href==='../'||!href||name==='../')continue;
+    const rem=m[3].trim();
+    const parts=rem.split(/\s+/);
+    const sizeStr=parts[parts.length-1];
+    const isDir=sizeStr==='-';
+    const size=isDir?null:parseSize(sizeStr);
+    const mtime=parseMtime(parts.slice(0,2).join(' '));
+    results.push({href,name,size,mtime,isDir});
+  }
+  return results;
+}
+function parseSize(s){
+  if(!s||s==='-')return null;
+  const m=s.match(/^([\d.]+)\s*([KMGT]?B?)$/i);
+  if(!m)return null;
+  const n=parseFloat(m[1]);const u=(m[2]||'B').toUpperCase();
+  return Math.round(n*{B:1,K:1024,KB:1024,M:1048576,MB:1048576,G:1073741824,GB:1073741824,T:1099511627776,TB:1099511627776}[u]||1);
+}
+function parseMtime(s){
+  if(!s)return null;
+  const d=new Date(s+' GMT');
+  return isNaN(d)?null:d.getTime();
+}
+
+/* ── Metadata parsing ── */
+function parseMD(md){
+  let title=null,desc=null,cast=null,dur=null;
+  const fm=md.match(/^---\s*\n([\s\S]*?)\n---/);
+  if(fm){
+    const y=fm[1],rest=md.slice(fm[0].length).trim();
+    title=y.match(/^title:\s*(.+)$/im)?.[1].trim()||null;
+    desc=y.match(/^description:\s*(.+)$/im)?.[1].trim()||null;
+    const cs=y.match(/^cast:\s*(.+)$/im)?.[1].trim();
+    if(cs)cast=cs.split(',').map(c=>c.trim()).filter(Boolean);
+    const ds=y.match(/^duration:\s*(.+)$/im)?.[1].trim();
+    if(ds)dur=parseDurStr(ds);
+    if(!desc&&rest)desc=rest;
+  }else{
+    const lines=md.split('\n').map(l=>l.trim()).filter(Boolean);
+    if(lines[0]?.startsWith('#')){title=lines[0].replace(/^#+\s*/,'');desc=lines.slice(1).join(' ').trim()||null}
+    else desc=lines.join(' ').trim()||null;
+  }
+  return{title,desc,cast,dur};
+}
+function parseJSON(j){
+  return{
+    title:j.title||null,
+    desc:j.description||j.desc||j.summary||null,
+    cast:j.cast?(Array.isArray(j.cast)?j.cast:j.cast.split(',').map(c=>c.trim()).filter(Boolean)):null,
+    dur:j.duration?parseDurStr(j.duration):null,
+    cover:j.cover||j.cover_image||j.poster||null,
+    year:j.year||null,
+    genre:j.genre||j.category||null,
+    episodes:j.episodes||j.episode_count||null
+  };
+}
+function mergeMeta(mdTxt,jsonTxt){
+  const r={title:null,desc:null,cast:null,dur:null,cover:null,year:null,genre:null,episodes:null};
+  if(jsonTxt){try{Object.assign(r,parseJSON(JSON.parse(jsonTxt)))}catch{}}
+  if(mdTxt){const m=parseMD(mdTxt);if(!r.title)r.title=m.title;if(!r.desc)r.desc=m.desc;if(!r.cast)r.cast=m.cast;if(!r.dur)r.dur=m.dur}
+  return r;
+}
+
+/* ── Network ── */
+async function fetchTxt(u){
+  try{const r=await fetch(u,{cache:'no-store'});return r.ok?await r.text():null}catch{return null}
+}
+async function headOk(u){
+  try{const r=await fetch(u,{method:'HEAD',cache:'no-store'});return r.ok}catch{return false}
+}
+async function discover(base,found=new Map(),depth=0){
+  if(depth>6)return found;
+  const html=await fetchTxt(base);
+  if(!html)return found;
+  for(const e of parseListing(html)){
+    const p=base.endsWith('/')?base+e.href:base+'/'+e.href;
+    const c=cat(e.name);
+    if(c)found.set(p,{url:p,filename:e.name,category:c,size:e.size,mtime:e.mtime});
+    else if(e.isDir&&e.href!=='../')await discover(p,found,depth+1);
+  }
+  return found;
+}
+
+/* ── Cover art ── */
+async function findCover(url){
+  const dir=url.slice(0,url.lastIndexOf('/')+1);
+  const base=url.split('/').pop().replace(/\.[^.]+$/,'');
+  const names=[base+'.jpg',base+'.jpeg',base+'.png',base+'.webp','cover.jpg','cover.jpeg','cover.png','album.jpg','poster.jpg','poster.png','art.jpg','art.png','folder.jpg'];
+  for(const n of names)if(await headOk(dir+n))return dir+n;
+  return null;
+}
+
+/* ── Duration probe ── */
+const durCache={};
+function probeDur(url){
+  return new Promise(res=>{
+    if(url in durCache){res(durCache[url]);return}
+    const ext=url.split('.').pop().toLowerCase();
+    const el=document.createElement(EXT.audio.includes(ext)?'audio':'video');
+    el.preload='metadata';el.src=url;
+    const done=d=>{durCache[url]=fmtDur(d);cleanup();res(durCache[url])};
+    const fail=()=>{durCache[url]=null;cleanup();res(null)};
+    const cleanup=()=>{el.removeEventListener('loadedmetadata',()=>done(el.duration));el.removeEventListener('error',fail);el.remove()};
+    el.addEventListener('loadedmetadata',()=>done(el.duration),{once:true});
+    el.addEventListener('error',fail,{once:true});
+    setTimeout(()=>{if(!(url in durCache)){durCache[url]=null;cleanup();res(null)}},6000);
+  });
+}
+
+/* ── DOM builders ── */
+function buildCard(item,isDrama){
+  const card=document.createElement('div');
+  card.className='card'+(isDrama?' card-drama':'');
+  card.dataset.cat=item.category;
+  card.dataset.title=(item.title||'').toLowerCase();
+  card.dataset.desc=(item.desc||'').toLowerCase();
+
+  // Media area
+  const media=document.createElement('div');
+  media.className='card-media';
+
+  if(item.cover){
+    const img=document.createElement('img');
+    img.src=item.cover;img.alt='Cover';img.loading='lazy';
+    img.addEventListener('load',()=>img.classList.add('loaded'));
+    media.appendChild(img);
+  }else if(item.category==='images'){
+    const img=document.createElement('img');
+    img.src=item.url;img.alt=item.title;img.loading='lazy';
+    img.addEventListener('load',()=>img.classList.add('loaded'));
+    img.addEventListener('click',()=>openLightbox(item.url));
+    img.style.cursor='zoom-in';
+    media.appendChild(img);
+  }else{
+    const icon=document.createElement('span');
+    icon.className='media-icon';
+    icon.textContent=ICON[item.category]||'📁';
+    media.appendChild(icon);
+  }
+
+  // Play button overlay for audio/video
+  if(item.category!=='images'){
+    const playBtn=document.createElement('button');
+    playBtn.className='card-play';
+    playBtn.innerHTML='<span class="play-circle">▶</span>';
+    playBtn.addEventListener('click',e=>{e.stopPropagation();playMedia(item)});
+    media.appendChild(playBtn);
+  }
+
+  card.appendChild(media);
+
+  // Body
+  const body=document.createElement('div');
+  body.className='card-body';
+
+  const title=document.createElement('div');
+  title.className='card-title';
+  title.textContent=item.title;
+  body.appendChild(title);
+
+  if(item.desc){
+    const desc=document.createElement('div');
+    desc.className='card-desc';
+    desc.textContent=item.desc;
+    body.appendChild(desc);
+  }
+
+  // Chips
+  const chips=document.createElement('div');
+  chips.className='card-chips';
+
+  if(item.dur){
+    const c=document.createElement('span');
+    c.className='chip chip-accent';
+    c.textContent='⏱ '+item.dur;
+    chips.appendChild(c);
+  }
+  if(item.size){
+    const c=document.createElement('span');
+    c.className='chip';
+    c.textContent='💾 '+fmtSize(item.size);
+    chips.appendChild(c);
+  }
+  if(item.mtime){
+    const c=document.createElement('span');
+    c.className='chip';
+    c.textContent='🕐 '+fmtDate(item.mtime);
+    chips.appendChild(c);
+  }
+  if(item.cast?.length){
+    const c=document.createElement('span');
+    c.className='chip';
+    c.textContent='🎭 '+item.cast.slice(0,3).join(', ')+(item.cast.length>3?' +'+(item.cast.length-3):'');
+    chips.appendChild(c);
+  }
+  const cat=document.createElement('span');
+  cat.className='chip';
+  cat.textContent=(item.category==='audio-drama'?'AUDIO DRAMA':item.category.toUpperCase());
+  chips.appendChild(cat);
+
+  body.appendChild(chips);
+  card.appendChild(body);
+  return card;
+}
+
+/* ── Hero ── */
+function renderHero(dramas){
+  const hero=document.getElementById('hero');
+  if(!dramas.length){
+    hero.innerHTML=`
+      <div class="hero-bg" style="background:linear-gradient(135deg,#16161c,#0a0a0e)"></div>
+      <div class="hero-gradient"></div>
+      <div class="hero-inner">
+        <div class="hero-coming">
+          <div class="coming-icon">🎙️</div>
+          <h2>Coming Soon</h2>
+          <p>The next audio drama production is in development. Check back here for the spotlight feature.</p>
+        </div>
+      </div>`;
+    return;
+  }
+  const f=dramas[0];
+  const bg=f.cover||'';
+  hero.innerHTML=`
+    ${bg?`<div class="hero-bg" style="background-image:url('${esc(bg)}')"></div>`:''}
+    <div class="hero-gradient"></div>
+    <div class="hero-inner">
+      <div class="hero-cover">
+        ${bg?`<img src="${esc(bg)}" alt="Cover" loading="eager" onload="this.classList.add('loaded')">`:''}
+        <div class="cover-ph" style="${bg?'display:none':''}">🎙️</div>
+      </div>
+      <div class="hero-meta">
+        <span class="hero-badge"><span class="badge-dot"></span>Featured Audio Drama</span>
+        <h2 class="hero-title">${esc(f.title)}</h2>
+        <p class="hero-desc">${esc(f.desc||'No description available.')}</p>
+        <div class="hero-stats">
+          ${f.dur?`<span class="hero-stat"><span class="stat-icon">⏱</span>${esc(f.dur)}</span>`:''}
+          ${f.cast?.length?`<span class="hero-stat"><span class="stat-icon">🎭</span>${esc(f.cast.slice(0,4).join(', '))}</span>`:''}
+          ${f.year?`<span class="hero-stat"><span class="stat-icon">📅</span>${f.year}</span>`:''}
+          ${f.genre?`<span class="hero-stat"><span class="stat-icon">🏷️</span>${esc(f.genre)}</span>`:''}
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="playMedia(${JSON.stringify(f).replace(/"/g,'&quot;')})">▶ Play Now</button>
+          ${f.episodes?`<span class="btn btn-ghost">${f.episodes} episode${f.episodes>1?'s':''}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── Grid rendering ── */
+function renderGrid(el,items,isDrama,emptyMsg){
+  el.innerHTML='';
+  if(!items.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><p>${emptyMsg}</p></div>`;
+    return;
+  }
+  const frag=document.createDocumentFragment();
+  for(const it of items)frag.appendChild(buildCard(it,isDrama));
+  el.appendChild(frag);
+  // Staggered animation
+  requestAnimationFrame(()=>{
+    const cards=el.querySelectorAll('.card');
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach((entry,i)=>{
+        if(entry.isIntersecting){
+          setTimeout(()=>entry.target.classList.add('in'),i*40);
+          io.unobserve(entry.target);
+        }
+      });
+    });
+    cards.forEach(c=>io.observe(c));
+  });
+}
+
+/* ── Now Playing ── */
+const npBar=document.getElementById('nowPlaying');
+const npAudio=document.getElementById('npAudio');
+const npTitle=document.getElementById('npTitle');
+const npMeta=document.getElementById('npMeta');
+function playMedia(item){
+  npAudio.src=item.url;
+  npTitle.textContent=item.title;
+  npMeta.textContent=[item.category==='audio-drama'?'Audio Drama':item.category,item.dur,item.size?fmtSize(item.size):null].filter(Boolean).join(' · ');
+  npBar.classList.add('open');
+  npAudio.play().catch(()=>{});
+}
+document.getElementById('npClose').addEventListener('click',()=>{
+  npAudio.pause();
+  npBar.classList.remove('open');
+});
+
+/* ── Lightbox ── */
+const lb=document.getElementById('lightbox');
+const lbImg=document.getElementById('lbImg');
+function openLightbox(url){lbImg.src=url;lb.classList.add('open')}
+document.getElementById('lbClose').addEventListener('click',()=>lb.classList.remove('open'));
+lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('open')});
+
+/* ── Filter & Search ── */
+let curFilter='all',curSearch='';
+function applyFilter(){
+  document.querySelectorAll('.card').forEach(c=>{
+    const cat=c.dataset.cat;
+    const title=c.dataset.title||'';
+    const desc=c.dataset.desc||'';
+    const matchF=curFilter==='all'||cat===curFilter;
+    const matchS=!curSearch||title.includes(curSearch)||desc.includes(curSearch);
+    c.style.display=matchF&&matchS?'':'none';
+  });
+  // Toggle empty states
+  document.querySelectorAll('.grid').forEach(g=>{
+    const vis=Array.from(g.querySelectorAll('.card')).some(c=>c.style.display!=='none');
+    const emp=g.querySelector('.empty');
+    if(emp)emp.style.display=vis?'none':'';
+  });
+}
+document.getElementById('search').addEventListener('input',e=>{
+  curSearch=e.target.value.toLowerCase();
+  applyFilter();
+});
+document.getElementById('filterPills').addEventListener('click',e=>{
+  const pill=e.target.closest('.filter-pill');
+  if(!pill)return;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  pill.classList.add('active');
+  curFilter=pill.dataset.filter;
+  // Show corresponding section
+  const sec={all:'sec-all',audio:'sec-audio',video:'sec-video',images:'sec-images','audio-drama':'sec-drama'}[curFilter];
+  if(sec){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(sec).classList.add('active');
+  }
+  applyFilter();
+});
+
+/* ── Count update ── */
+function setCounts(c){
+  for(const[k,v]of Object.entries(c)){
+    const el=document.getElementById('cnt-'+k);
+    if(el)el.textContent=v?' ('+v+')':'';
+  }
+}
+
+/* ── Main ── */
+async function load(){
+  const gAll=document.getElementById('g-all');
+  const gAudio=document.getElementById('g-audio');
+  const gVideo=document.getElementById('g-video');
+  const gImages=document.getElementById('g-images');
+  const gDrama=document.getElementById('g-drama');
+
+  // Show skeletons
+  [gAll,gAudio,gVideo,gImages,gDrama].forEach(g=>{
+    g.innerHTML='<div class="skeleton" style="height:280px"></div>'.repeat(3);
+  });
+
+  const media=await discover('/media/');
+  if(!media.size){
+    const msg='<div class="empty"><div class="empty-icon">📭</div><p>No media files found yet.</p><p class="empty-sub">Add files to /opt/content-site/media/ to see them here.</p></div>';
+    [gAll,gAudio,gVideo,gImages,gDrama].forEach(g=>g.innerHTML=msg);
+    renderHero([]);
+    return;
+  }
+
+  // Process items
+  const items=[];
+  for(const[,info] of media){
+    const isDrama=info.url.includes('/'+DRAMADIR+'/');
+    const category=isDrama?'audio-drama':info.category;
+    const meta=await mergeMeta(await fetchTxt(info.url+'.md'),await fetchTxt(info.url+'.json'));
+    const cover=meta.cover||await findCover(info.url);
+    let dur=meta.dur;
+    if(!dur&&(category==='audio'||category==='audio-drama'||category==='video')){
+      dur=await probeDur(info.url);
+    }
+    items.push({
+      url:info.url,
+      filename:info.filename,
+      category,
+      title:meta.title||deriveTitle(info.filename),
+      desc:meta.desc,
+      size:info.size,
+      mtime:info.mtime,
+      dur,
+      cover,
+      cast:meta.cast,
+      year:meta.year,
+      genre:meta.genre,
+      episodes:meta.episodes
+    });
+  }
+
+  // Sort: featured first, then by mtime desc
+  items.sort((a,b)=>{
+    const af=a.featured?1:0,bf=b.featured?1:0;
+    if(af!==bf)return bf-af;
+    const ta=a.mtime||0,tb=b.mtime||0;
+    if(tb!==ta)return tb-ta;
+    return a.title.localeCompare(b.title);
+  });
+
+  const dramas=items.filter(i=>i.category==='audio-drama');
+  const audios=items.filter(i=>i.category==='audio');
+  const videos=items.filter(i=>i.category==='video');
+  const imgs=items.filter(i=>i.category==='images');
+
+  renderHero(dramas);
+  renderGrid(gDrama,dramas,true,'No audio dramas yet. The next production will land here soon.');
+  renderGrid(gAll,items,false,'No media files found.');
+  renderGrid(gAudio,audios,false,'No audio files found.');
+  renderGrid(gVideo,videos,false,'No video files found.');
+  renderGrid(gImages,imgs,false,'No images found.');
+
+  setCounts({all:items.length,audio:audios.length,video:videos.length,images:imgs.length,drama:dramas.length});
+}
+
+load();
+})();
+</script>
+</body>
+</html>
