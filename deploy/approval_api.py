@@ -37,6 +37,37 @@ YOUTUBE_MAP = {
     "videos/applied-psychology-ai-was-wrong.mp4": "t_1314c000",
 }
 
+# Music lane (task t_98c95aad): approving a music sidecar must
+# unblock the mapped card on the `music` board, not the
+# faceless-youtube board. The board is derived from the asset's
+# kind directory, so one code path serves both lanes.
+MUSIC_BOARD = "music"
+MUSIC_MAP = {
+    "what-runs-beneath.mp3": "t_667cda4a",
+    "amber-hour.mp3": "t_667cda4a",
+    "signal-before-dawn.mp3": "t_667cda4a",
+    "music/what-runs-beneath.mp3": "t_667cda4a",
+    "music/amber-hour.mp3": "t_667cda4a",
+    "music/signal-before-dawn.mp3": "t_667cda4a",
+}
+
+
+def _kanban_target(asset: str):
+    """Map an asset to (ticket, board). Music assets hit the
+    music board; everything else hits faceless-youtube. Keys are
+    accepted both with and without the kind prefix so a caller
+    that sends `what-runs-beneath.mp3` or
+    `music/what-runs-beneath.mp3` both resolve."""
+    bare = asset.split("/", 1)[-1]
+    if asset.startswith("music/") or bare in MUSIC_MAP or asset in MUSIC_MAP:
+        ticket = MUSIC_MAP.get(asset) or MUSIC_MAP.get(bare)
+        if ticket:
+            return ticket, MUSIC_BOARD
+    ticket = YOUTUBE_MAP.get(asset) or YOUTUBE_MAP.get(bare)
+    if ticket:
+        return ticket, KANBAN_BOARD
+    return None, None
+
 
 def _log(log_path: Path, action: str, asset: str, detail: str = "") -> None:
     entry = {
@@ -84,14 +115,14 @@ def _update_status_sidecar(media_root: Path, asset: str, new_status: str) -> boo
     return True
 
 
-def _queue_kanban(pending_dir: Path, log_path: Path, asset: str, tid: str) -> str:
+def _queue_kanban(pending_dir: Path, log_path: Path, asset: str, tid: str, board: str = KANBAN_BOARD) -> str:
     """Record the unblock so it is durable even though this container has no
     hermes CLI. Returns a short status string for the response body."""
     pending_dir.mkdir(parents=True, exist_ok=True)
     rec = {
         "ts": time.time(),
         "iso": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-        "board": KANBAN_BOARD,
+        "board": board,
         "action": "unblock",
         "ticket": tid,
         "asset": asset,
@@ -108,16 +139,16 @@ def _queue_kanban(pending_dir: Path, log_path: Path, asset: str, tid: str) -> st
     # queue entry is simply marked done instead of being needed.
     try:
         r = subprocess.run(
-            ["hermes", "kanban", "--board", KANBAN_BOARD, "unblock", tid],
+            ["hermes", "kanban", "--board", board, "unblock", tid],
             capture_output=True,
             text=True,
             timeout=30,
         )
-        detail = f"kanban {tid}: {r.stdout.strip()[:80]}"
+        detail = f"kanban {tid}@{board}: {r.stdout.strip()[:80]}"
         _log(log_path, "approve", asset, detail)
         return "done"
     except Exception as e:
-        _log(log_path, "approve", asset, f"kanban {tid} queued (no hermes CLI: {e})")
+        _log(log_path, "approve", asset, f"kanban {tid}@{board} queued (no hermes CLI: {e})")
         return "queued"
 
 
@@ -170,11 +201,11 @@ class Handler(BaseHTTPRequestHandler):
     def _approve(self, asset):
         ok = _update_status_sidecar(self.media_root, asset, "approved")
         _log(self.log_path, "approve", asset, "sidecar_ok" if ok else "no_sidecar")
-        tid = YOUTUBE_MAP.get(asset)
+        tid, board = _kanban_target(asset)
         kanban = None
         if tid:
-            kanban = _queue_kanban(self.pending_dir, self.log_path, asset, tid)
-        return {"ok": ok, "asset": asset, "status": "approved", "kanban": tid, "kanban_state": kanban}
+            kanban = _queue_kanban(self.pending_dir, self.log_path, asset, tid, board)
+        return {"ok": ok, "asset": asset, "status": "approved", "kanban": tid, "board": board, "kanban_state": kanban}
 
     def _reject(self, asset):
         ok = _update_status_sidecar(self.media_root, asset, "rejected")

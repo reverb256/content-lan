@@ -9,9 +9,9 @@ from the zephyr workstation. Migrated 2026-09-23 under the standing directive
 
 | Path | Served? | Purpose |
 |------|---------|---------|
-| `index.html` | yes | content.lan showcase. Discovers media by scraping nginx's `autoindex` of `/media/`, then fetches each asset's `.md`/`.json` sidecar for metadata (title, status, cast, cover). |
+| `index.html` | yes | content.lan showcase. Discovers media by scraping nginx's `autoindex` of `/media/`, then fetches each asset's `.md`/`.json` sidecar for metadata (title, status, cast, cover). Sections: Audio Dramas, **Music**, Audio, Video, Images. |
 | `dashboard/index.html` | yes (`/dashboard/`) | team dashboard vhost (dashboard.lan) |
-| `media/**` | yes (`/media/`) | the media tree: audio dramas, audio, images, video + per-asset sidecar `.md`/`.json` |
+| `media/**` | yes (`/media/`) | the media tree: audio dramas, **music**, audio, images, video + per-asset sidecar `.md`/`.json` |
 | `deploy/approval_api.py` | no (denied at the edge) | approval API — approve/reject a pending asset; rewrites `status:` in the asset's sidecar |
 | `approval-log.jsonl` | no | seed copy of the decision log (runtime log lives on the cluster volume) |
 | `index.html.bak-20260902` | yes | pre-migration snapshot, kept so no content revision is lost |
@@ -45,3 +45,20 @@ The kanban unblock that used to shell out to `hermes kanban ... unblock` cannot
 run inside the cluster image (no hermes CLI). Those requests are appended to
 `/site/pending/kanban-unblocks.jsonl` on the volume instead of being dropped;
 the site-agency pipeline owns draining that queue.
+
+## Music lane (task t_98c95aad)
+
+The site has a dedicated **Music** section (nav pill + section + grid).
+Tracks live in `media/music/` with the same `file.md` sidecar convention
+(extension replaced, NOT `file.mp3.md`). The site categorizes any media
+file found under `/media/music/` as category `music`, so it renders in
+the Music section with its inline audio player — not in the generic Audio
+bucket.
+
+The approval API maps music assets to the **music** kanban board (not the
+faceless-youtube board the video assets use). `MUSIC_MAP` in
+`deploy/approval_api.py` maps each music asset to its publish card
+(currently the first-proof card `t_667cda4a`); `_kanban_target()` derives
+the board from the asset's kind directory, so approving a music sidecar
+queues an unblock against the music board. The queue record carries
+`board` so the drainer can target the right board.

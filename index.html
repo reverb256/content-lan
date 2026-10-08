@@ -688,6 +688,7 @@ video::-webkit-media-controls-panel{background:transparent}
   <div class="nav-filters" id="filterPills">
     <button class="filter-pill active" data-filter="all">All</button>
     <button class="filter-pill" data-filter="audio-drama">Audio Dramas</button>
+    <button class="filter-pill" data-filter="music">Music</button>
     <button class="filter-pill" data-filter="audio">Audio</button>
     <button class="filter-pill" data-filter="video">Video</button>
     <button class="filter-pill" data-filter="images">Images</button>
@@ -714,6 +715,14 @@ video::-webkit-media-controls-panel{background:transparent}
       <h2 class="section-title">Audio Dramas<span class="section-count" id="cnt-drama"></span></h2>
     </div>
     <div class="grid" id="g-drama"></div>
+  </section>
+
+  <!-- Music -->
+  <section class="section" id="sec-music">
+    <div class="section-head">
+      <h2 class="section-title">Music<span class="section-count" id="cnt-music"></span></h2>
+    </div>
+    <div class="grid" id="g-music"></div>
   </section>
 
   <!-- All Media -->
@@ -774,8 +783,9 @@ video::-webkit-media-controls-panel{background:transparent}
 
 /* ── Config ── */
 const EXT={audio:['mp3','wav','ogg','flac','m4a','aac','wma'],video:['mp4','webm','mkv','mov','avi','m4v'],images:['jpg','jpeg','png','gif','webp','svg','bmp']};
-const ICON={audio:'🎵',video:'🎬',images:'🖼️','audio-drama':'🎙️'};
+const ICON={audio:'🎵',video:'🎬',images:'🖼️','audio-drama':'🎙️',music:'🎼'};
 const DRAMADIR='audio-dramas';
+const MUSICDIR='music';
 
 /* ── Helpers ── */
 const cat=f=>{const e=f.split('.').pop().toLowerCase();for(const[k,v]of Object.entries(EXT))if(v.includes(e))return k;return null};
@@ -1171,7 +1181,7 @@ const npMeta=document.getElementById('npMeta');
 function playMedia(item){
   npAudio.src=item.url;
   npTitle.textContent=item.title;
-  npMeta.textContent=[item.category==='audio-drama'?'Audio Drama':item.category,item.dur,item.size?fmtSize(item.size):null].filter(Boolean).join(' · ');
+  npMeta.textContent=[item.category==='audio-drama'?'Audio Drama':item.category==='music'?'Music':item.category,item.dur,item.size?fmtSize(item.size):null].filter(Boolean).join(' · ');
   npBar.classList.add('open');
   npAudio.play().catch(()=>{});
 }
@@ -1215,7 +1225,7 @@ document.getElementById('filterPills').addEventListener('click',e=>{
   document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
   pill.classList.add('active');
   curFilter=pill.dataset.filter;
-  const sec={all:'sec-all',audio:'sec-audio',video:'sec-video',images:'sec-images','audio-drama':'sec-drama'}[curFilter];
+  const sec={all:'sec-all',audio:'sec-audio',video:'sec-video',images:'sec-images','audio-drama':'sec-drama',music:'sec-music'}[curFilter];
   if(sec){
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.getElementById(sec).classList.add('active');
@@ -1238,16 +1248,17 @@ async function load(){
   const gVideo=document.getElementById('g-video');
   const gImages=document.getElementById('g-images');
   const gDrama=document.getElementById('g-drama');
+  const gMusic=document.getElementById('g-music');
 
   // Show skeletons
-  [gAll,gAudio,gVideo,gImages,gDrama].forEach(g=>{
+  [gAll,gAudio,gVideo,gImages,gDrama,gMusic].forEach(g=>{
     g.innerHTML='<div class="skeleton" style="height:260px"></div>'.repeat(3);
   });
 
   const media=await discover('/media/');
   if(!media.size){
     const msg='<div class="empty"><div class="empty-icon">📭</div><p>No media files found yet.</p><p class="empty-sub">Add files to /opt/content-site/media/ to see them here.</p></div>';
-    [gAll,gAudio,gVideo,gImages,gDrama].forEach(g=>g.innerHTML=msg);
+    [gAll,gAudio,gVideo,gImages,gDrama,gMusic].forEach(g=>g.innerHTML=msg);
     renderHero([]);
     return;
   }
@@ -1256,11 +1267,12 @@ async function load(){
   const items=[];
   for(const[,info] of media){
     const isDrama=info.url.includes('/'+DRAMADIR+'/');
-    const category=isDrama?'audio-drama':info.category;
+    const isMusic=!isDrama&&info.url.includes('/'+MUSICDIR+'/');
+    const category=isDrama?'audio-drama':isMusic?'music':info.category;
     const meta=await mergeMeta(await fetchTxt(info.url.replace(/\.[^.]+$/,'')+'.md')||await fetchTxt(info.url+'.md'),await fetchTxt(info.url.replace(/\.[^.]+$/,'')+'.json')||await fetchTxt(info.url+'.json'));
     const cover=meta.cover||await findCover(info.url);
     let dur=meta.dur;
-    if(!dur&&(category==='audio'||category==='audio-drama'||category==='video')){
+    if(!dur&&(category==='audio'||category==='music'||category==='audio-drama'||category==='video')){
       dur=await probeDur(info.url);
     }
     items.push({
@@ -1293,18 +1305,20 @@ async function load(){
   });
 
   const dramas=items.filter(i=>i.category==='audio-drama');
+  const musics=items.filter(i=>i.category==='music');
   const audios=items.filter(i=>i.category==='audio');
   const videos=items.filter(i=>i.category==='video');
   const imgs=items.filter(i=>i.category==='images');
 
   renderHero(dramas);
   renderGrid(gDrama,dramas,true,'No audio dramas yet. The next production will land here soon.');
+  renderGrid(gMusic,musics,false,'No music tracks awaiting review yet.');
   renderGrid(gAll,items,false,'No media files found.');
   renderGrid(gAudio,audios,false,'No audio files found.');
   renderGrid(gVideo,videos,false,'No video files found.');
   renderGrid(gImages,imgs,false,'No images found.');
 
-  setCounts({all:items.length,audio:audios.length,video:videos.length,images:imgs.length,drama:dramas.length});
+  setCounts({all:items.length,audio:audios.length,video:videos.length,images:imgs.length,drama:dramas.length,music:musics.length});
 
   // Register review-gated items for the pending banner
   approvalQueue=items.filter(i=>i.status==='awaiting-approval'||i.status==='draft');
