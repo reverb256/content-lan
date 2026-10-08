@@ -11,7 +11,7 @@ size_mb: 0.13
 lane: streaming
 source_repo: ai-content-pipeline/music/lyrics/trance/signal-before-dawn
 authorship: human-original
-card: t_667cda4a
+card: t_b908143a
 description: "Holding on through the long stretch before dawn. Not a party song — a 3am promise. One voice against a big sky. Original human-authored lyrics (manifest: authorship.status=human-original, suno_generated_lyrics=false). Lines loop cleanly against a 138 BPM four-on-the-floor. Beatport closed 2026-08-12 — independent release only."
 ---
 

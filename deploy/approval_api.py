@@ -43,12 +43,12 @@ YOUTUBE_MAP = {
 # kind directory, so one code path serves both lanes.
 MUSIC_BOARD = "music"
 MUSIC_MAP = {
-    "what-runs-beneath.mp3": "t_667cda4a",
-    "amber-hour.mp3": "t_667cda4a",
-    "signal-before-dawn.mp3": "t_667cda4a",
-    "music/what-runs-beneath.mp3": "t_667cda4a",
-    "music/amber-hour.mp3": "t_667cda4a",
-    "music/signal-before-dawn.mp3": "t_667cda4a",
+    "what-runs-beneath.mp3": "t_b908143a",
+    "amber-hour.mp3": "t_b908143a",
+    "signal-before-dawn.mp3": "t_b908143a",
+    "music/what-runs-beneath.mp3": "t_b908143a",
+    "music/amber-hour.mp3": "t_b908143a",
+    "music/signal-before-dawn.mp3": "t_b908143a",
 }
 
 

@@ -11,7 +11,7 @@ size_mb: 0.13
 lane: sync
 source_repo: ai-content-pipeline/music/lyrics/activist/what-runs-beneath
 authorship: human-original
-card: t_667cda4a
+card: t_b908143a
 description: "Testimony, not slogans. A town learns what runs beneath it — the aquifer, the notice, the hearing in the hardware hall — then stands up. Ends with a door, not a victory. Original human-authored lyrics (manifest: authorship.status=human-original, suno_generated_lyrics=false)."
 ---
 

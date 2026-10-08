@@ -11,7 +11,7 @@ size_mb: 0.13
 lane: youtube-longform
 source_repo: ai-content-pipeline/music/lyrics/chill-lounge/amber-hour
 authorship: human-original
-card: t_667cda4a
+card: t_b908143a
 description: "Late-night quiet after a long day. A city slows down; one person keeps the light on. Warmth without drama — the song is a room you want to stay in. Original human-authored lyrics (manifest: authorship.status=human-original, suno_generated_lyrics=false). Vocals sit low; vowel shape over consonants."
 ---
 
